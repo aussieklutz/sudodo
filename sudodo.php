@@ -46,12 +46,12 @@ function reduce() {
             // reduce row adjacent values
             for($k = 0; $k < $cols; $k++) {
                 // walk columns in row, exept self, and remove options
-                if($k != $j) $cells[$i][$j] = array_diff($cells[$i][$k]);
+                if($k != $j) $cells[$i][$j] = array_diff($cells[$i][$j], $cells[$i][$k]);
             }
             // reduce col adjacent values
             for($k = 0; $k < $rows; $k++) {
                 // walk rows in column, exept self, and remove options
-                if($k != $i) $cells[$i][$j] = array_diff($cells[$k][$j]);
+                if($k != $i) $cells[$i][$j] = array_diff($cells[$i][$j], $cells[$k][$j]);
             }
             // reduce division adjacent values
             $rowdiv = floor($i / $div);
@@ -59,7 +59,7 @@ function reduce() {
             for($m = $rowdiv; $m < (floor($rows/$div) + $rowdiv); $m++) {
                 for($n = $coldiv; $n < (floor($cols/$div) + $coldiv); $n++) {
                     // walk cells in division, exept self, and remove options
-                    if($i != $m && $j != $n) $cells[$i][$j] = array_diff($cells[$m][$n]);
+                    if($i != $m && $j != $n) $cells[$i][$j] = array_diff($cells[$i][$j], $cells[$m][$n]);
                 }
             }
             // reduce diagonal adjacent values
@@ -67,7 +67,7 @@ function reduce() {
                 // reduce col adjacent values
                 for($k = 0; $k < $rows; $k++) {
                     // walk cels in diagonal, exept self, and remove options
-                    if($k != $i && $k != $j) $cells[$i][$j] = array_diff($cells[$k][$k]);
+                    if($k != $i && $k != $j) $cells[$i][$j] = array_diff($cells[$i][$j], $cells[$k][$k]);
                 }
             }
             $reduced += $possible_values - count($cells[$i][$j]);
@@ -77,12 +77,20 @@ function reduce() {
     return $reduced;
 }
 
-if(!isset($argv[1]) || preg_match('#^[1-9\.]{81}$#', $argv[1]))) {
-    echo Supply a string of 81 periods and single digit numbers for a 9x9 sudoku grid;
+if(!isset($argv[1])) {
+    echo 'Supply a string of 81 periods and single digit numbers for a 9x9 sudoku grid' . PHP_EOL;
+    exit(1);
+} elseif (!preg_match('#^[1-9\.]{' . $totalcells . '}$#', trim($argv[1]))) {
+    echo 'Invalid string: ' . $argv[1] . PHP_EOL;
+    echo 'Supply a string of 81 periods and single digit numbers for a 9x9 sudoku grid' . PHP_EOL;
+    exit(1);
+} elseif (strlen(trim($argv[1])) != $totalcells) {
+    echo 'Invalid length: ' . strlen($argv[1]) . PHP_EOL;
+    echo 'Supply a string of 81 periods and single digit numbers for a 9x9 sudoku grid' . PHP_EOL;
     exit(1);
 } else {
     // prepare initial state
-    $sudoku_string = $argv[1];
+    $sudoku_string = trim($argv[1]);
     echo $sudoku_string . PHP_EOL;
     $cells = array();
     do {
