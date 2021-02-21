@@ -20,7 +20,7 @@ function output() {
             }
         }
     }
-    return $netstring;
+    return $newstring;
 }
 
 function display($populate) {
@@ -173,7 +173,7 @@ if(!isset($argv[1])) {
             }
         } while (display(false) > 0);
         file_put_contents('attempt.json', json_encode($cells));
-        sleep(10);
+        //sleep(10);
     } while (display(false) != 0);
     echo 'Result: ' . output() . PHP_EOL;
 }
