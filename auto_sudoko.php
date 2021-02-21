@@ -268,6 +268,7 @@ function solve($challenge) {
     $sudoku_string = $challenge;
     if($GLOBALS['debug']) echo $sudoku_string . PHP_EOL;
     $cells = array();
+    $steps = 1000;
     do {
         do {
             echo 'Starting Attempt' . PHP_EOL;
@@ -287,11 +288,15 @@ function solve($challenge) {
                     if($GLOBALS['debug']) echo 'Reduce Round' . PHP_EOL;
                     $randoffset = 0;
                 }
+                $steps --;
+                if($steps < 1) continue;
             } while (display(false, true) > 0);
             echo PHP_EOL;
             file_put_contents('attempt.json', json_encode($cells));
             //sleep(10);
+            if($steps < 1) continue;
         } while (display(false, true) != 0);
+        if($steps < 1) continue;
     } while (verify() != 0);
     display(false);
     echo 'Result: ' . output() . PHP_EOL;
@@ -332,7 +337,15 @@ while($state >= 0)
             if($line == '?') {
                 fwrite($conn, solve($challenge) . PHP_EOL);
                 $line = '';
-                $state = -1;
+                $state = 3;
+            }
+        } elseif($state == 3) {
+            if(strpos($line, 'go.')) {
+                $line = '';
+                $state = 1;
+            } elseif (strpos($line, 'Incorrect')) {
+                $line = '';
+                $state = 0;
             }
         }
     }
